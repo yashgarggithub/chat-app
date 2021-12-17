@@ -15,7 +15,7 @@ const msgSchema = new mongoose.Schema({
     },
     room: {
         type: String,
-        requir: true
+        require: true
     }
 })
 

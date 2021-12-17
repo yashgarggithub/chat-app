@@ -20,7 +20,7 @@ const express = require('express')
 const socketio = require('socket.io')
 
 const app = express()   //app generated
-const server = http.createServer(app)   //done by express itself
+const server = http.createServer(app)   //done by express itself but we are doint it seperately to use socket
 
 const io = socketio(server) //configures socket.io with the server
 
@@ -76,7 +76,7 @@ io.on('connection', (socket) => {   //socket: object whose methods will be used
     //SEND MESSAGE
     socket.on('sendMessage', (msg, callback) => {
 
-        const user = getUser(socket.id)
+        const user = getUser(socket.id) //socket.id: users unique id
 
         const filter = new Filter()
         if (filter.isProfane(msg)) {
@@ -107,7 +107,7 @@ io.on('connection', (socket) => {   //socket: object whose methods will be used
         const userRemoved = removeUser(socket.id)
 
         if (userRemoved) {
-            io.to(userRemoved.room).emit('message', generateMessage('Admin', `${userRemoved.username} has left`))
+            // io.to(userRemoved.room).emit('message', generateMessage('Admin', `${userRemoved.username} has left`))
 
             io.to(userRemoved.room).emit('roomData', {
                 room: userRemoved.room,

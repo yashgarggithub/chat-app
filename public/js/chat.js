@@ -130,7 +130,7 @@ $messageForm.addEventListener('submit', (e) => {
 //SEND LOCATION clicked
 $sendLocationButton.addEventListener('click', () => {
     if (!navigator.geolocation) {
-        return alert('Geolocation is not supoorted!')
+        return alert('Geolocation is not supoorted by your browser!')
     }
 
     $sendLocationButton.setAttribute('disabled', 'disabled')

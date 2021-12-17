@@ -123,6 +123,7 @@ $messageForm.addEventListener('submit', (e) => {
         if (e) {
             return console.log(e);
         }
+        $messageFormInput.value = ''
         console.log('message delivered!')
     })
 })

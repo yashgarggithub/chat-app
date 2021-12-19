@@ -14,7 +14,7 @@ const messageTemplate = document.querySelector('#message-template').innerHTML
 const locationMessageTemplate = document.querySelector('#locationMessage-template').innerHTML
 const sidebarTemplate = document.querySelector('#sidebar-template').innerHTML
 
-//Options
+//Options: after user clicks join room
 const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true })    //location.search: ?username=Yash+garg&room=room+Name
 
 //The latest msg will be shown at bottom + when going through history, no autoscroll
@@ -149,6 +149,18 @@ $sendLocationButton.addEventListener('click', () => {
         })
     })
 })
+
+// document.getElementById('habibi-button').onclick = buttonClickFunction;
+// function buttonClickFunction(clicked) {
+//     console.log('button click recorder');
+//     const room2 = 'habibi'
+//     socket.emit('join', { username, room2 }, (error) => {
+//         if (error) {
+//             alert(error)
+//             location.href = '/' //redirecting to homepage
+//         }
+//     })
+// }
 
 //Checking error while joining room
 socket.emit('join', { username, room }, (error) => {

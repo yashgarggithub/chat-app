@@ -42,7 +42,7 @@ button {
     border: none;
     color: #fff;
     font-size: 16px;
-    transition: background .3s ease
+    transition: background .3s ease;
 }
 
 button:hover {
@@ -87,8 +87,10 @@ button:disabled {
     height: 100vh;
     color: #fff;
     background: #333744;
-    width: 225px;
+    width: 265px;
     overflow-y: scroll
+        /* margin-top: 64px;
+    height: 91vh; */
 }
 
 .chat__main {
@@ -151,19 +153,37 @@ button:disabled {
 .room-title {
     font-weight: 400;
     font-size: 22px;
-    background: #2c2f3a;
+    background: #283c85;
     padding: 24px
 }
 
 .list-title {
     font-weight: 500;
-    font-size: 18px;
+    font-size: 13px;
+    color: #7989c0;
     margin-bottom: 4px;
-    padding: 12px 24px 0
+    padding: 12px 12px 0
 }
 
 .users {
     list-style-type: none;
     font-weight: 300;
-    padding: 12px 24px 0
+    padding: 12px;
+    /* padding-left: 24px;
+    padding-bottom: 24px; */
+}
+
+.list-items {
+    padding-top: 23px;
+    padding-bottom: 23px;
+    border: 1px solid rgb(93, 32, 192);
+    width: 223px;
+}
+
+.user-name-clickable{
+    color: white;
+    /* padding-top: 23px;
+    padding-bottom: 23px;
+    border: 1px solid rgb(93, 32, 192);
+    width: 223px; */
 }

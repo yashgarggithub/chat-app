@@ -8,7 +8,7 @@ const mongoDB = 'mongodb+srv://yashgarg1:newpassword@cluster0.h8tin.mongodb.net/
 mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
     console.log('Mongo connected');
 }).catch((e) => {
-    console.log(e);
+    console.log('mongo not connected bcz:',e);
 })
 
 const msgModel = require('./models/messages')

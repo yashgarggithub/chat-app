@@ -8,13 +8,14 @@ const mongoDB = 'mongodb+srv://yashgarg1:newpassword@cluster0.h8tin.mongodb.net/
 mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
     console.log('Mongo connected');
 }).catch((e) => {
-    console.log('mongo not connected bcz:',e);
+    console.log('mongo not connected bcz:', e);
 })
 
 const msgModel = require('./models/messages')
 
 const { generateMessage, generateLocationMessage } = require('./utils/messages')
-const { addUser, removeUser, getUser, getUsersInRoom } = require('./utils/users')
+const { addUser, removeUser, getUser, getUsersInRoom} = require('./utils/users')
+const { addRoom, recountRoom, getAllRooms } = require('./utils/rooms')
 
 const express = require('express')
 const socketio = require('socket.io')
@@ -34,6 +35,10 @@ app.use(express.static(publicDirectoryPath))
 io.on('connection', (socket) => {   //socket: object whose methods will be used
     console.log('New webSocket Connection');
 
+    //existing rooms
+    io.emit('showExistingRooms', getAllRooms())
+    console.log('Emitted show existing rooms');
+
     //emit(): to send an event to the client side
     //after event name, any no of arguments can be passed to client side
 
@@ -47,12 +52,14 @@ io.on('connection', (socket) => {   //socket: object whose methods will be used
         //     const { error, user } = addUser({ id: socket.id, ...options })
 
         if (error) {
-            console.log('callback called');
             return callback(error)
         }
 
-        socket.join(user.room)
+        addRoom(user.room)
+        console.log('Room added');
 
+        socket.join(user.room)
+        
         // socket.to(user.room).emit('message', generateMessage('Admin', 'Welcome to the family'))
         // socket.broadcast.to(user.room).emit('message', generateMessage('Admin', `${user.username} has joined`))
 
@@ -61,6 +68,10 @@ io.on('connection', (socket) => {   //socket: object whose methods will be used
             room: user.room,
             users: getUsersInRoom(user.room)
         })
+
+        //existing rooms
+        io.emit('showExistingRooms', addRoom( room ))
+        console.log('Emitted show existing rooms2');
 
         // SHOW HISTORY
         msgModel.find().then((result) => {
@@ -77,8 +88,9 @@ io.on('connection', (socket) => {   //socket: object whose methods will be used
     socket.on('sendMessage', (msg, callback) => {
 
         const user = getUser(socket.id) //socket.id: users unique id
-
         const filter = new Filter()
+        // filter.addWords('gaand', 'choot', 'chut', 'lund', 'madarchod', 'behenchod', 'lavde', 'lode', 'laude', 'chod', 'chuchi')
+
         if (filter.isProfane(msg)) {
             // return callback('Profanity not allowed!')
             msg = filter.clean(msg) //shit -> ****
@@ -108,7 +120,7 @@ io.on('connection', (socket) => {   //socket: object whose methods will be used
 
         if (userRemoved) {
             // io.to(userRemoved.room).emit('message', generateMessage('Admin', `${userRemoved.username} has left`))
-
+            // io.emit('showExistingRooms', recountRoom(userRemoved.room))
             io.to(userRemoved.room).emit('roomData', {
                 room: userRemoved.room,
                 users: getUsersInRoom(userRemoved.room)

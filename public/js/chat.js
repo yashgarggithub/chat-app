@@ -8,6 +8,9 @@ const $messageFormInput = $messageForm.querySelector('input')
 const $messageFormButton = $messageForm.querySelector('button')
 const $sendLocationButton = document.querySelector('#send-location')
 const $messages = document.querySelector('#messages')
+// const $messagesRecieved = document.querySelector('#messages-recieved')
+// const $messagesSent = document.querySelector('#messages-sent')
+
 
 //Templates
 const messageTemplate = document.querySelector('#message-template').innerHTML
@@ -19,24 +22,38 @@ const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true }
 
 //The latest msg will be shown at bottom + when going through history, no autoscroll
 const autoscroll = () => {
-    // New message element
+    /*
+        scrollHeight: total container size.
+        scrollTop: amount of scroll user has done.
+        clientHeight: amount of container a user sees.
+    */
+
+    // new message element
     const $newMessage = $messages.lastElementChild
 
-    // Height of the new message
+    // height of $newMessage margins
     const newMessageStyles = getComputedStyle($newMessage)
     const newMessageMargin = parseInt(newMessageStyles.marginBottom)
-    const newMessageHeight = $newMessage.offsetHeight + newMessageMargin
 
-    // Visible height
+    // height of $newMessage without margins
+    let newMessageHeight = $newMessage.offsetHeight
+
+    // total height of $newMessage
+    newMessageHeight += newMessageMargin
+
+    // visible height
     const visibleHeight = $messages.offsetHeight
 
-    // Height of messages container
+    // total height of messages container 
+    // scrollHeight => hauteur totale du scroll possible donc du container
     const containerHeight = $messages.scrollHeight
 
-    // How far have I scrolled?
-    const scrollOffset = $messages.scrollTop + visibleHeight
+    // how far have we scrolled
+    const scrollOfset = $messages.scrollTop + visibleHeight
 
-    if (containerHeight - newMessageHeight <= scrollOffset + 1) {
+    // containerHeight - newMessageHeight <= scrollOfset => permet de vérifier qu'avant le nouveau message on est bien en bas de la page. Pour éviter qu'on applique l'auto scroll alors qu'on a scroller manuellement pour lire les messages précédents
+
+    if (containerHeight - newMessageHeight <= scrollOfset) {
         $messages.scrollTop = $messages.scrollHeight
     }
 }
@@ -53,6 +70,12 @@ socket.on('message', (msg) => {
         createdAt: moment(msg.createdAt).format("hh:mm a")
     })
     $messages.insertAdjacentHTML('beforeend', html) //beforeend: latest msg will be at bottom
+    // if (username === msg.username) {
+    //     $messagesSent.insertAdjacentHTML('beforeend', html) //beforeend: latest msg will be at bottom
+    // }
+    // else {
+    //     $messagesRecieved.insertAdjacentElement('beforeend', html)
+    // }
     autoscroll()
 })
 
@@ -64,15 +87,21 @@ socket.on('chat-history', (data) => {
     const room = data.room
 
     if (db.length) {    //database is not empty
-        db.forEach((message) => {
+        db.forEach((message) => {   //iterating complete db
 
-            if (message.room === room) {
+            if (message.room === room) {    //checking messages of current room
                 const html = Mustache.render(messageTemplate, {
                     username: message.username,
                     messageToShow: message.msg,
                     createdAt: moment(message.createdAt).format("hh:mm a")
                 })
                 $messages.insertAdjacentHTML('beforeend', html) //beforeend: latest msg will be at bottom
+                // if (username === message.username) {
+                //     $messagesSent.insertAdjacentHTML('beforeend', html) //beforeend: latest msg will be at bottom
+                // }
+                // else {
+                //     $messagesRecieved.insertAdjacentHTML('beforeend', html)
+                // }
                 autoscroll()
             }
         })
@@ -116,15 +145,16 @@ $messageForm.addEventListener('submit', (e) => {
     socket.emit('sendMessage', messageToSend, (e) => {
 
         $messageFormButton.removeAttribute('disabled')  //re-enabling button
-
-        $messageFormInput.value = ''
+        // $messageFormInput.value = ''
+        // $messageFormInput.innerText = ''
+        // $messageForm.reset()
         $messageFormInput.focus()   //the cursor focuses on input after sending
 
         if (e) {
             return console.log(e);
         }
-        $messageFormInput.value = ''
         console.log('message delivered!')
+        autoscroll()
     })
 })
 
@@ -148,19 +178,8 @@ $sendLocationButton.addEventListener('click', () => {
             $sendLocationButton.removeAttribute('disabled')
         })
     })
+    autoscroll()
 })
-
-// document.getElementById('habibi-button').onclick = buttonClickFunction;
-// function buttonClickFunction(clicked) {
-//     console.log('button click recorder');
-//     const room2 = 'habibi'
-//     socket.emit('join', { username, room2 }, (error) => {
-//         if (error) {
-//             alert(error)
-//             location.href = '/' //redirecting to homepage
-//         }
-//     })
-// }
 
 //Checking error while joining room
 socket.emit('join', { username, room }, (error) => {

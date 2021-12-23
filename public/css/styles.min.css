@@ -249,3 +249,45 @@ select {
     border-radius: 13px;
     transition: 0.3s;
 }
+
+/* -------------message left and right----------------- */
+.message {
+    padding: 20px;
+    border-radius: 4px;
+    margin-bottom: 40px;
+    padding-top: 1%;
+    padding-left: 1%;
+    left: 4px;
+    max-width: 300px;
+    position: relative;
+}
+
+.incoming {
+    background: #e9eafd;
+    color: #787986;
+
+}
+
+.outgoing {
+    background: #8F8BE8;
+    margin-left: auto;
+    color: #fff;
+}
+
+/* name of person */
+.message h4 {
+    position: absolute;
+    top: -20px;
+    left: 1%;
+    color: #333;
+    font-size: 14px;
+}
+
+/* time */
+.message h5 {
+    position: absolute;
+    bottom: 3px;
+    padding-left: 80%;
+    color: rgb(199, 199, 199);
+    font-size: 10px;
+}

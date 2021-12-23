@@ -11,54 +11,16 @@ const $messages = document.querySelector('#messages')
 // const $messagesRecieved = document.querySelector('#messages-recieved')
 // const $messagesSent = document.querySelector('#messages-sent')
 
-
 //Templates
-const messageTemplate = document.querySelector('#message-template').innerHTML
+// const messageTemplate = document.querySelector('#message-template').innerHTML
 const locationMessageTemplate = document.querySelector('#locationMessage-template').innerHTML
 const sidebarTemplate = document.querySelector('#sidebar-template').innerHTML
 
 //Options: after user clicks join room
 const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true })    //location.search: ?username=Yash+garg&room=room+Name
 
-//The latest msg will be shown at bottom + when going through history, no autoscroll2
+//The latest msg will be shown at bottom + when going through history, no autoscroll
 const autoscroll = () => {
-    /*
-        scrollHeight: total container size.
-        scrollTop: amount of scroll user has done.
-        clientHeight: amount of container a user sees.
-    */
-
-    // new message element
-    const $newMessage = $messages.lastElementChild
-
-    // height of $newMessage margins
-    const newMessageStyles = getComputedStyle($newMessage)
-    const newMessageMargin = parseInt(newMessageStyles.marginBottom)
-
-    // height of $newMessage without margins
-    let newMessageHeight = $newMessage.offsetHeight
-
-    // total height of $newMessage
-    newMessageHeight += newMessageMargin
-
-    // visible height
-    const visibleHeight = $messages.offsetHeight
-
-    // total height of messages container 
-    // scrollHeight => hauteur totale du scroll possible donc du container
-    const containerHeight = $messages.scrollHeight
-
-    // how far have we scrolled
-    const scrollOfset = $messages.scrollTop + visibleHeight
-
-    // containerHeight - newMessageHeight <= scrollOfset => permet de vérifier qu'avant le nouveau message on est bien en bas de la page. Pour éviter qu'on applique l'auto scroll alors qu'on a scroller manuellement pour lire les messages précédents
-
-    if (containerHeight - newMessageHeight <= scrollOfset) {
-        $messages.scrollTop = $messages.scrollHeight
-    }
-}
-
-const autoscroll2 = () => {
     $messages.scrollTop = $messages.scrollHeight
 }
 
@@ -67,20 +29,39 @@ const autoscroll2 = () => {
 //SHOWING MESSAGE
 socket.on('message', (msg) => {
 
+    //showing message by creative individual div for each message
+    //left & right can be seen by 'incoming' & 'outgoing' (CSS)
+
+    const currDiv = document.createElement('div')
+    if (username === msg.username) {
+        currDiv.classList.add('outgoing', 'message')
+    }
+    else {
+        currDiv.classList.add('incoming', 'message')
+    }
+
+    const markup = `
+        <h4>${msg.username}</h4>
+        <h5>${moment(msg.createdAt).format("hh:mm a")}</h5>
+        <p>${msg.text}</p>
+    `
+    currDiv.innerHTML = markup  //redering
+    $messages.appendChild(currDiv)  //appending to messages
+
     //Mustache: to render msg on browser instead of log
-    const html = Mustache.render(messageTemplate, {
-        username: msg.username,
-        messageToShow: msg.text,
-        createdAt: moment(msg.createdAt).format("hh:mm a")
-    })
-    $messages.insertAdjacentHTML('beforeend', html) //beforeend: latest msg will be at bottom
+    // const html = Mustache.render(messageTemplate, {
+    //     username: msg.username,
+    //     messageToShow: msg.text,
+    //     createdAt: moment(msg.createdAt).format("hh:mm a")
+    // })
+    // $messages.insertAdjacentHTML('beforeend', html) //beforeend: latest msg will be at bottom
     // if (username === msg.username) {
     //     $messagesSent.insertAdjacentHTML('beforeend', html) //beforeend: latest msg will be at bottom
     // }
     // else {
     //     $messagesRecieved.insertAdjacentElement('beforeend', html)
     // }
-    autoscroll2()
+    autoscroll()
 })
 
 // SHOWING CHAT HISTORY
@@ -91,22 +72,37 @@ socket.on('chat-history', (data) => {
     const room = data.room
 
     if (db.length) {    //database is not empty
-        db.forEach((message) => {   //iterating complete db
+        db.forEach((msg) => {   //iterating complete db
 
-            if (message.room === room) {    //checking messages of current room
-                const html = Mustache.render(messageTemplate, {
-                    username: message.username,
-                    messageToShow: message.msg,
-                    createdAt: moment(message.createdAt).format("hh:mm a")
-                })
-                $messages.insertAdjacentHTML('beforeend', html) //beforeend: latest msg will be at bottom
+            if (msg.room === room) {    //checking messages of current room
+                const currDiv = document.createElement('div')
+                if (username === msg.username) {
+                    currDiv.classList.add('outgoing', 'message')
+                }
+                else {
+                    currDiv.classList.add('incoming', 'message')
+                }
+
+                const markup = `
+                    <h4>${msg.username}</h4>
+                    <h5>${moment(msg.createdAt).format("hh:mm a")}</h5>
+                    <p>${msg.msg}</p>
+                `
+                currDiv.innerHTML = markup
+                $messages.appendChild(currDiv)
+                // const html = Mustache.render(messageTemplate, {
+                //     username: message.username,
+                //     messageToShow: message.msg,
+                //     createdAt: moment(message.createdAt).format("hh:mm a")
+                // })
+                // $messages.insertAdjacentHTML('beforeend', html) //beforeend: latest msg will be at bottom
                 // if (username === message.username) {
                 //     $messagesSent.insertAdjacentHTML('beforeend', html) //beforeend: latest msg will be at bottom
                 // }
                 // else {
                 //     $messagesRecieved.insertAdjacentHTML('beforeend', html)
                 // }
-                autoscroll2()
+                autoscroll()
             }
         })
     }
@@ -116,13 +112,23 @@ socket.on('chat-history', (data) => {
 socket.on('locationMessage', (msg) => {
     console.log(msg);
 
-    const html = Mustache.render(locationMessageTemplate, {
-        username: msg.username,
-        url: msg.url,
-        createdAt: moment(msg.createdAt).format("hh:mm a")
-    })
-    $messages.insertAdjacentHTML('beforeend', html)
-    autoscroll2()
+    const currDiv = document.createElement('div')
+    currDiv.classList.add('outgoing', 'message')
+    const markup = `
+                    <h4>${msg.username}</h4>
+                    <h5>${moment(msg.createdAt).format("hh:mm a")}</h5>
+                    <p><a href="${msg.url}" target="_blank">My current Location</a></p>
+                `
+    currDiv.innerHTML = markup
+    $messages.appendChild(currDiv)
+
+    // const html = Mustache.render(locationMessageTemplate, {
+    //     username: msg.username,
+    //     url: msg.url,
+    //     createdAt: moment(msg.createdAt).format("hh:mm a")
+    // })
+    // $messages.insertAdjacentHTML('beforeend', html)
+    autoscroll()
 })
 
 //SHOWING room name and room users on sidebar
@@ -158,7 +164,7 @@ $messageForm.addEventListener('submit', (e) => {
             return console.log(e);
         }
         console.log('message delivered!')
-        autoscroll2()
+        autoscroll()
     })
 })
 
@@ -182,7 +188,7 @@ $sendLocationButton.addEventListener('click', () => {
             $sendLocationButton.removeAttribute('disabled')
         })
     })
-    autoscroll2()
+    autoscroll()
 })
 
 //Checking error while joining room

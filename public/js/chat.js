@@ -20,7 +20,7 @@ const sidebarTemplate = document.querySelector('#sidebar-template').innerHTML
 //Options: after user clicks join room
 const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true })    //location.search: ?username=Yash+garg&room=room+Name
 
-//The latest msg will be shown at bottom + when going through history, no autoscroll
+//The latest msg will be shown at bottom + when going through history, no autoscroll2
 const autoscroll = () => {
     /*
         scrollHeight: total container size.
@@ -58,6 +58,10 @@ const autoscroll = () => {
     }
 }
 
+const autoscroll2 = () => {
+    $messages.scrollTop = $messages.scrollHeight
+}
+
 //on(): recieves event from server
 
 //SHOWING MESSAGE
@@ -76,7 +80,7 @@ socket.on('message', (msg) => {
     // else {
     //     $messagesRecieved.insertAdjacentElement('beforeend', html)
     // }
-    autoscroll()
+    autoscroll2()
 })
 
 // SHOWING CHAT HISTORY
@@ -102,7 +106,7 @@ socket.on('chat-history', (data) => {
                 // else {
                 //     $messagesRecieved.insertAdjacentHTML('beforeend', html)
                 // }
-                autoscroll()
+                autoscroll2()
             }
         })
     }
@@ -118,7 +122,7 @@ socket.on('locationMessage', (msg) => {
         createdAt: moment(msg.createdAt).format("hh:mm a")
     })
     $messages.insertAdjacentHTML('beforeend', html)
-    autoscroll()
+    autoscroll2()
 })
 
 //SHOWING room name and room users on sidebar
@@ -154,7 +158,7 @@ $messageForm.addEventListener('submit', (e) => {
             return console.log(e);
         }
         console.log('message delivered!')
-        autoscroll()
+        autoscroll2()
     })
 })
 
@@ -178,7 +182,7 @@ $sendLocationButton.addEventListener('click', () => {
             $sendLocationButton.removeAttribute('disabled')
         })
     })
-    autoscroll()
+    autoscroll2()
 })
 
 //Checking error while joining room

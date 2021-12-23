@@ -3,6 +3,7 @@ const path = require('path')
 const http = require('http')
 const Filter = require('bad-words')
 
+// Connecting to database
 const mongoose = require('mongoose')
 const mongoDB = 'mongodb+srv://yashgarg1:newpassword@cluster0.h8tin.mongodb.net/message-database?retryWrites=true&w=majority'  //fetched from mongodb atlas
 mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
@@ -19,6 +20,12 @@ const { addRoom, recountRoom, getAllRooms } = require('./utils/rooms')
 
 const express = require('express')
 const socketio = require('socket.io')
+
+// on(), emit()
+//socket.on()
+//io.on()
+
+//broadcast()
 
 const app = express()   //app generated
 const server = http.createServer(app)   //done by express itself but we are doint it seperately to use socket
@@ -89,7 +96,6 @@ io.on('connection', (socket) => {   //socket: object whose methods will be used
 
         const user = getUser(socket.id) //socket.id: users unique id
         const filter = new Filter()
-        // filter.addWords('gaand', 'choot', 'chut', 'lund', 'madarchod', 'behenchod', 'lavde', 'lode', 'laude', 'chod', 'chuchi')
 
         if (filter.isProfane(msg)) {
             // return callback('Profanity not allowed!')
